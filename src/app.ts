@@ -11,7 +11,7 @@ dotenv.config();
 const app = express();
 
 const allowedOrigins = [
-  'https://azzurra-makeup-artist.netlify.app', // Questo sarà l'URL del tuo frontend su Cloud Run
+  'https://azzurra-makeup-deploy-1046780610179.europe-west1.run.app', // Questo sarà l'URL del tuo frontend su Cloud Run
   'http://localhost:4200', // Per lo sviluppo locale di Angular
   'http://localhost:3000' // Per il backend stesso se fai richieste interne
 ];
