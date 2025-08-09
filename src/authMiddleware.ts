@@ -5,6 +5,13 @@ import { Request, Response, NextFunction } from 'express';
 // Se non lo è, assicurati che dotenv.config() sia chiamato all'inizio della tua applicazione.
 
 export const authenticateApiKey = (req: Request, res: Response, next: NextFunction) => {
+   // <-- AGGIUNGI QUESTO BLOCCO ALL'INIZIO -->
+  // Se il metodo della richiesta è OPTIONS, è una richiesta di preflight CORS.
+  // La lasciamo passare senza controlli, sarà gestita dal middleware 'cors'.
+  if (req.method === 'OPTIONS') {
+    return next();
+  }
+  // <-- FINE DEL BLOCCO AGGIUNTO -->
   // La chiave API sarà passata nell'header 'x-api-key'
   const apiKey = req.header('x-api-key');
 
