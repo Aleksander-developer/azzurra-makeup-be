@@ -44,9 +44,9 @@ app.get('/', (req, res) => {
 
 // Applica il middleware di autenticazione API Key
 // Tutte le route definite DOPO questa riga richiederanno la chiave API
-// app.use('/api', authenticateApiKey, apiRoutes); // <-- MODIFICATO QUI: Applica il middleware solo alle route /api
+app.use('/api', authenticateApiKey, apiRoutes); 
 
 // Applichiamo le rotte senza autenticazione, come nel progetto funzionante
-app.use('/api', apiRoutes); 
+// app.use('/api', apiRoutes); 
 
 export default app;
