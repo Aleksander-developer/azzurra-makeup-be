@@ -47,7 +47,7 @@ app.get('/', (req, res) => {
 });
 
 // Connessione al database
-(async () => { await connectDB(); })();
+// (async () => { await connectDB(); })();
 
 // Applica il middleware di autenticazione e le rotte API
 app.use('/api', authenticateApiKey, apiRoutes); 
