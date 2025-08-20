@@ -18,15 +18,22 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: function (origin, callback) {
+    // Permetti richieste senza origine (es. Postman)
     if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) return callback(null, true);
-    console.log("CORS origin non permessa:", origin);
-    return callback(new Error('Accesso CORS non consentito da questo dominio'), false);
+
+    // Controlla se l'origine della richiesta inizia con uno degli URL permessi
+    const isAllowed = allowedOrigins.some(allowedOrigin => origin.startsWith(allowedOrigin));
+    
+    if (isAllowed) {
+      return callback(null, true);
+    } else {
+      console.log("CORS origin non permessa:", origin);
+      return callback(new Error('Accesso CORS non consentito da questo dominio'), false);
+    }
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  // Aggiungi 'x-api-key' agli allowedHeaders per consentire il passaggio della chiave API
-  allowedHeaders: ['Content-Type', 'Authorization', 'x-api-key'] // <-- MODIFICATO QUI
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-api-key']
 }));
 
 // Middleware per il parsing del body delle richieste
