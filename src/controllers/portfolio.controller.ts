@@ -1,3 +1,4 @@
+// src/controllers/portfolio.controller.ts
 import { Request, Response } from 'express';
 import { PortfolioItem, IPortfolioImage } from '../models/progetto.model';
 import cloudinary from '../config/cloudinary.config';
@@ -41,16 +42,15 @@ export const getPortfolioItemById = async (req: Request, res: Response) => {
 export const addPortfolioItem = async (req: Request, res: Response) => {
   try {
     const { title, category, subtitle, description } = req.body;
-    const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-    const galleryFiles = files?.galleryImages || [];
-    
+    const files = req.files as Express.Multer.File[];
+
     let imagesData: IPortfolioImage[] = [];
     if (typeof req.body.images === 'string') {
-        try {
-            imagesData = JSON.parse(req.body.images);
-        } catch (e) {
-            return res.status(400).json({ message: "Il campo 'images' non è un JSON valido." });
-        }
+      try {
+        imagesData = JSON.parse(req.body.images);
+      } catch {
+        return res.status(400).json({ message: "Il campo 'images' non è un JSON valido." });
+      }
     }
 
     if (!title || !category) {
@@ -60,8 +60,8 @@ export const addPortfolioItem = async (req: Request, res: Response) => {
     const galleryImagesUrls: IPortfolioImage[] = [];
     const newImagesMetadata = imagesData.filter(d => d.isNew);
 
-    for (let i = 0; i < galleryFiles.length; i++) {
-      const file = galleryFiles[i];
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
       const result = await uploadToCloudinary(file.buffer, 'azzurra-makeup/portfolio-gallery');
       const imageDetails = newImagesMetadata[i];
       galleryImagesUrls.push({
@@ -90,81 +90,82 @@ export const addPortfolioItem = async (req: Request, res: Response) => {
 
 // PUT Aggiorna un elemento del portfolio
 export const updatePortfolioItem = async (req: Request, res: Response) => {
-    try {
-        const { id } = req.params;
-        const { title, category, subtitle, description } = req.body;
-        const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-        const galleryFiles = files?.galleryImages || [];
-        
-        let imagesData: IPortfolioImage[] = [];
-        if (typeof req.body.images === 'string') {
-            try {
-                imagesData = JSON.parse(req.body.images);
-            } catch (e) {
-                return res.status(400).json({ message: "Il campo 'images' non è un JSON valido." });
-            }
-        }
+  try {
+    const { id } = req.params;
+    const { title, category, subtitle, description } = req.body;
+    const files = req.files as Express.Multer.File[];
 
-        const itemToUpdate = await PortfolioItem.findById(id);
-        if (!itemToUpdate) {
-            return res.status(404).json({ message: 'Elemento del portfolio non trovato' });
-        }
-
-        itemToUpdate.title = title || itemToUpdate.title;
-        itemToUpdate.subtitle = subtitle || itemToUpdate.subtitle;
-        itemToUpdate.description = description || itemToUpdate.description;
-        itemToUpdate.category = category || itemToUpdate.category;
-
-        // Logica per aggiornare/aggiungere immagini
-        const finalImages: IPortfolioImage[] = imagesData.filter(img => !img.isNew); // Mantiene le vecchie immagini
-        const newImagesMetadata = imagesData.filter(img => img.isNew);
-        
-        for (let i = 0; i < galleryFiles.length; i++) {
-          const file = galleryFiles[i];
-          const result = await uploadToCloudinary(file.buffer, 'azzurra-makeup/portfolio-gallery');
-          const imageDetails = newImagesMetadata[i];
-          finalImages.push({
-            src: result.secure_url,
-            description: imageDetails?.description || '',
-            alt: imageDetails?.alt || ''
-          });
-        }
-        itemToUpdate.images = finalImages;
-
-        const updatedItem = await itemToUpdate.save();
-        res.json(updatedItem);
-
-    } catch (error) {
-        console.error("Errore nell'aggiornamento:", error);
-        res.status(500).json({ message: 'Errore nell\'aggiornamento dell\'elemento del portfolio', error });
+    let imagesData: IPortfolioImage[] = [];
+    if (typeof req.body.images === 'string') {
+      try {
+        imagesData = JSON.parse(req.body.images);
+      } catch {
+        return res.status(400).json({ message: "Il campo 'images' non è un JSON valido." });
+      }
     }
+
+    const itemToUpdate = await PortfolioItem.findById(id);
+    if (!itemToUpdate) {
+      return res.status(404).json({ message: 'Elemento del portfolio non trovato' });
+    }
+
+    itemToUpdate.title = title || itemToUpdate.title;
+    itemToUpdate.subtitle = subtitle || itemToUpdate.subtitle;
+    itemToUpdate.description = description || itemToUpdate.description;
+    itemToUpdate.category = category || itemToUpdate.category;
+
+    // Mantieni le vecchie immagini
+    const finalImages: IPortfolioImage[] = imagesData.filter(img => !img.isNew);
+    const newImagesMetadata = imagesData.filter(img => img.isNew);
+
+    // Aggiungi nuove immagini caricate
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const result = await uploadToCloudinary(file.buffer, 'azzurra-makeup/portfolio-gallery');
+      const imageDetails = newImagesMetadata[i];
+      finalImages.push({
+        src: result.secure_url,
+        description: imageDetails?.description || '',
+        alt: imageDetails?.alt || ''
+      });
+    }
+
+    itemToUpdate.images = finalImages;
+
+    const updatedItem = await itemToUpdate.save();
+    res.json(updatedItem);
+
+  } catch (error) {
+    console.error("Errore nell'aggiornamento:", error);
+    res.status(500).json({ message: 'Errore nell\'aggiornamento dell\'elemento del portfolio', error });
+  }
 };
 
 // DELETE Elimina un elemento del portfolio
 export const deletePortfolioItem = async (req: Request, res: Response) => {
-    try {
-        const { id } = req.params;
-        const item = await PortfolioItem.findByIdAndDelete(id);
+  try {
+    const { id } = req.params;
+    const item = await PortfolioItem.findByIdAndDelete(id);
 
-        if (!item) {
-            return res.status(404).json({ message: 'Elemento del portfolio non trovato' });
-        }
-
-        if (item.images && item.images.length > 0) {
-            const publicIds = item.images.map(img => {
-                const parts = img.src.split('/');
-                const fileNameWithFolder = parts.slice(parts.indexOf('azzurra-makeup')).join('/').split('.')[0];
-                return fileNameWithFolder;
-            }).filter(id => id);
-
-            if (publicIds.length > 0) {
-                await cloudinary.api.delete_resources(publicIds);
-            }
-        }
-
-        res.status(200).json({ message: 'Elemento del portfolio eliminato con successo' });
-    } catch (error) {
-        console.error("Errore nell'eliminazione:", error);
-        res.status(500).json({ message: 'Errore nell\'eliminazione dell\'elemento del portfolio', error });
+    if (!item) {
+      return res.status(404).json({ message: 'Elemento del portfolio non trovato' });
     }
+
+    if (item.images && item.images.length > 0) {
+      const publicIds = item.images.map(img => {
+        const parts = img.src.split('/');
+        const fileNameWithFolder = parts.slice(parts.indexOf('azzurra-makeup')).join('/').split('.')[0];
+        return fileNameWithFolder;
+      }).filter(id => id);
+
+      if (publicIds.length > 0) {
+        await cloudinary.api.delete_resources(publicIds);
+      }
+    }
+
+    res.status(200).json({ message: 'Elemento del portfolio eliminato con successo' });
+  } catch (error) {
+    console.error("Errore nell'eliminazione:", error);
+    res.status(500).json({ message: 'Errore nell\'eliminazione dell\'elemento del portfolio', error });
+  }
 };
