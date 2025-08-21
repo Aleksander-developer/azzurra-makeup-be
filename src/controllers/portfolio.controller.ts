@@ -23,6 +23,7 @@ export const getPortfolioItems = async (_req: Request, res: Response) => {
     const items = await PortfolioItem.find().sort({ createdAt: -1 });
     res.json(items);
   } catch (error) {
+    console.error("Errore nel recupero degli elementi:", error);
     res.status(500).json({ message: 'Errore nel recupero degli elementi', error });
   }
 };
@@ -34,6 +35,7 @@ export const getPortfolioItemById = async (req: Request, res: Response) => {
     if (!item) return res.status(404).json({ message: 'Elemento non trovato' });
     res.json(item);
   } catch (error) {
+    console.error("Errore nel recupero dell'elemento:", error);
     res.status(500).json({ message: 'Errore nel recupero dell\'elemento', error });
   }
 };
@@ -42,12 +44,12 @@ export const getPortfolioItemById = async (req: Request, res: Response) => {
 export const addPortfolioItem = async (req: Request, res: Response) => {
   try {
     const { title, category, subtitle, description } = req.body;
-    const files = req.files as Express.Multer.File[];
+    const files = req.files as Express.Multer.File[] || [];
 
     let imagesData: IPortfolioImage[] = [];
-    if (typeof req.body.images === 'string') {
+    if (req.body.images) {
       try {
-        imagesData = JSON.parse(req.body.images);
+        imagesData = typeof req.body.images === 'string' ? JSON.parse(req.body.images) : req.body.images;
       } catch {
         return res.status(400).json({ message: "Il campo 'images' non è un JSON valido." });
       }
@@ -93,12 +95,12 @@ export const updatePortfolioItem = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { title, category, subtitle, description } = req.body;
-    const files = req.files as Express.Multer.File[];
+    const files = req.files as Express.Multer.File[] || [];
 
     let imagesData: IPortfolioImage[] = [];
-    if (typeof req.body.images === 'string') {
+    if (req.body.images) {
       try {
-        imagesData = JSON.parse(req.body.images);
+        imagesData = typeof req.body.images === 'string' ? JSON.parse(req.body.images) : req.body.images;
       } catch {
         return res.status(400).json({ message: "Il campo 'images' non è un JSON valido." });
       }
@@ -114,11 +116,9 @@ export const updatePortfolioItem = async (req: Request, res: Response) => {
     itemToUpdate.description = description || itemToUpdate.description;
     itemToUpdate.category = category || itemToUpdate.category;
 
-    // Mantieni le vecchie immagini
     const finalImages: IPortfolioImage[] = imagesData.filter(img => !img.isNew);
     const newImagesMetadata = imagesData.filter(img => img.isNew);
 
-    // Aggiungi nuove immagini caricate
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       const result = await uploadToCloudinary(file.buffer, 'azzurra-makeup/portfolio-gallery');
@@ -131,7 +131,6 @@ export const updatePortfolioItem = async (req: Request, res: Response) => {
     }
 
     itemToUpdate.images = finalImages;
-
     const updatedItem = await itemToUpdate.save();
     res.json(updatedItem);
 
@@ -153,10 +152,14 @@ export const deletePortfolioItem = async (req: Request, res: Response) => {
 
     if (item.images && item.images.length > 0) {
       const publicIds = item.images.map(img => {
-        const parts = img.src.split('/');
-        const fileNameWithFolder = parts.slice(parts.indexOf('azzurra-makeup')).join('/').split('.')[0];
-        return fileNameWithFolder;
-      }).filter(id => id);
+        const url = new URL(img.src);
+        const pathname = url.pathname; // /vXXX/azzurra-makeup/portfolio-gallery/...
+        const parts = pathname.split('/');
+        const folderIndex = parts.findIndex(p => p.includes('azzurra-makeup'));
+        if (folderIndex === -1) return null;
+        const publicIdWithExtension = parts.slice(folderIndex).join('/'); // azzurra-makeup/...
+        return publicIdWithExtension.replace(/\.[^/.]+$/, ''); // rimuovi estensione
+      }).filter(Boolean) as string[];
 
       if (publicIds.length > 0) {
         await cloudinary.api.delete_resources(publicIds);
