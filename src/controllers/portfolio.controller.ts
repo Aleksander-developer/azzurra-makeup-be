@@ -42,27 +42,28 @@ export const addPortfolioItem = async (req: Request, res: Response) => {
   try {
     const { title, category, subtitle, description } = req.body;
     const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-    const mainImageFile = files?.mainImage?.[0]; // <-- Prende l'immagine principale
     const galleryFiles = files?.galleryImages || [];
-    const imagesData: IPortfolioImage[] = req.body.images ? JSON.parse(req.body.images) : [];
+    
+    let imagesData: IPortfolioImage[] = [];
+    if (typeof req.body.images === 'string') {
+        try {
+            imagesData = JSON.parse(req.body.images);
+        } catch (e) {
+            return res.status(400).json({ message: "Il campo 'images' non è un JSON valido." });
+        }
+    }
 
     if (!title || !category) {
       return res.status(400).json({ message: 'Titolo e Categoria sono obbligatori.' });
     }
 
-    let mainImageUrl: string | undefined = undefined;
-    if (mainImageFile) {
-        const result = await uploadToCloudinary(mainImageFile.buffer, 'azzurra-makeup/portfolio-main');
-        mainImageUrl = result.secure_url;
-    }
-
-    // Carica immagini della galleria
     const galleryImagesUrls: IPortfolioImage[] = [];
     const newImagesMetadata = imagesData.filter(d => d.isNew);
+
     for (let i = 0; i < galleryFiles.length; i++) {
       const file = galleryFiles[i];
       const result = await uploadToCloudinary(file.buffer, 'azzurra-makeup/portfolio-gallery');
-      const imageDetails = newImagesMetadata[i]; 
+      const imageDetails = newImagesMetadata[i];
       galleryImagesUrls.push({
         src: result.secure_url,
         description: imageDetails?.description || '',
@@ -75,7 +76,6 @@ export const addPortfolioItem = async (req: Request, res: Response) => {
       subtitle,
       description,
       category,
-      mainImage: mainImageUrl, // <-- Usa l'URL dell'immagine caricata
       images: galleryImagesUrls,
     });
 
@@ -88,29 +88,83 @@ export const addPortfolioItem = async (req: Request, res: Response) => {
   }
 };
 
-// PUT Aggiorna un elemento
+// PUT Aggiorna un elemento del portfolio
 export const updatePortfolioItem = async (req: Request, res: Response) => {
-    // Implementazione simile a 'addPortfolioItem' ma per l'aggiornamento
-    // Per ora la lasciamo semplice per non creare confusione
     try {
         const { id } = req.params;
-        const updatedItem = await PortfolioItem.findByIdAndUpdate(id, req.body, { new: true });
-        if (!updatedItem) return res.status(404).json({ message: "Elemento non trovato" });
+        const { title, category, subtitle, description } = req.body;
+        const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+        const galleryFiles = files?.galleryImages || [];
+        
+        let imagesData: IPortfolioImage[] = [];
+        if (typeof req.body.images === 'string') {
+            try {
+                imagesData = JSON.parse(req.body.images);
+            } catch (e) {
+                return res.status(400).json({ message: "Il campo 'images' non è un JSON valido." });
+            }
+        }
+
+        const itemToUpdate = await PortfolioItem.findById(id);
+        if (!itemToUpdate) {
+            return res.status(404).json({ message: 'Elemento del portfolio non trovato' });
+        }
+
+        itemToUpdate.title = title || itemToUpdate.title;
+        itemToUpdate.subtitle = subtitle || itemToUpdate.subtitle;
+        itemToUpdate.description = description || itemToUpdate.description;
+        itemToUpdate.category = category || itemToUpdate.category;
+
+        // Logica per aggiornare/aggiungere immagini
+        const finalImages: IPortfolioImage[] = imagesData.filter(img => !img.isNew); // Mantiene le vecchie immagini
+        const newImagesMetadata = imagesData.filter(img => img.isNew);
+        
+        for (let i = 0; i < galleryFiles.length; i++) {
+          const file = galleryFiles[i];
+          const result = await uploadToCloudinary(file.buffer, 'azzurra-makeup/portfolio-gallery');
+          const imageDetails = newImagesMetadata[i];
+          finalImages.push({
+            src: result.secure_url,
+            description: imageDetails?.description || '',
+            alt: imageDetails?.alt || ''
+          });
+        }
+        itemToUpdate.images = finalImages;
+
+        const updatedItem = await itemToUpdate.save();
         res.json(updatedItem);
+
     } catch (error) {
-        res.status(500).json({ message: "Errore nell'aggiornamento dell'elemento", error });
+        console.error("Errore nell'aggiornamento:", error);
+        res.status(500).json({ message: 'Errore nell\'aggiornamento dell\'elemento del portfolio', error });
     }
 };
 
-// DELETE Elimina un elemento
+// DELETE Elimina un elemento del portfolio
 export const deletePortfolioItem = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
-        const deletedItem = await PortfolioItem.findByIdAndDelete(id);
-        if (!deletedItem) return res.status(404).json({ message: "Elemento non trovato" });
-        // Qui andrebbe la logica per eliminare le immagini da Cloudinary
-        res.json({ message: "Elemento eliminato con successo" });
+        const item = await PortfolioItem.findByIdAndDelete(id);
+
+        if (!item) {
+            return res.status(404).json({ message: 'Elemento del portfolio non trovato' });
+        }
+
+        if (item.images && item.images.length > 0) {
+            const publicIds = item.images.map(img => {
+                const parts = img.src.split('/');
+                const fileNameWithFolder = parts.slice(parts.indexOf('azzurra-makeup')).join('/').split('.')[0];
+                return fileNameWithFolder;
+            }).filter(id => id);
+
+            if (publicIds.length > 0) {
+                await cloudinary.api.delete_resources(publicIds);
+            }
+        }
+
+        res.status(200).json({ message: 'Elemento del portfolio eliminato con successo' });
     } catch (error) {
-        res.status(500).json({ message: "Errore nell'eliminazione dell'elemento", error });
+        console.error("Errore nell'eliminazione:", error);
+        res.status(500).json({ message: 'Errore nell\'eliminazione dell\'elemento del portfolio', error });
     }
 };
