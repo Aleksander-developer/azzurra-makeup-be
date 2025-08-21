@@ -88,7 +88,7 @@ export const addPortfolioItem = async (req: Request, res: Response) => {
   }
 };
 
-// PUT Aggiorna un elemento del portfolio
+// PUT Aggiorna un elemento
 export const updatePortfolioItem = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
@@ -115,8 +115,7 @@ export const updatePortfolioItem = async (req: Request, res: Response) => {
         itemToUpdate.description = description || itemToUpdate.description;
         itemToUpdate.category = category || itemToUpdate.category;
 
-        // Logica per aggiornare/aggiungere immagini
-        const finalImages: IPortfolioImage[] = imagesData.filter(img => !img.isNew); // Mantiene le vecchie immagini
+        const finalImages: IPortfolioImage[] = imagesData.filter(img => !img.isNew);
         const newImagesMetadata = imagesData.filter(img => img.isNew);
         
         for (let i = 0; i < galleryFiles.length; i++) {
@@ -140,7 +139,7 @@ export const updatePortfolioItem = async (req: Request, res: Response) => {
     }
 };
 
-// DELETE Elimina un elemento del portfolio
+// DELETE Elimina un elemento
 export const deletePortfolioItem = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
