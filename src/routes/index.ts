@@ -4,6 +4,7 @@ import chiSonoRoutes from './chi-sono.routes';
 import contattiRoutes from './contatti.routes';
 import serviziRoutes from './servizi.routes';
 import portfolioRoutes from './portfolio.routes'; // <-- NUOVO: Importa le rotte del portfolio
+import authRoutes from './auth.routes';
 
 const router = express.Router();
 
@@ -13,7 +14,7 @@ router.use('/servizi', serviziRoutes);
 router.use('/portfolio', portfolioRoutes); // <-- NUOVO: Aggiungi le rotte del portfolio
 
 // Puoi aggiungere qui una rotta per il login/autenticazione in futuro
-// router.use('/auth', authRoutes);
+router.use('/auth', authRoutes);
 
 export default router;
 
