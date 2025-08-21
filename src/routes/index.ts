@@ -7,10 +7,10 @@ import portfolioRoutes from './portfolio.routes'; // <-- NUOVO: Importa le rotte
 
 const router = express.Router();
 
-// router.use('/chi-sono', chiSonoRoutes);
-// router.use('/contatti', contattiRoutes);
-// router.use('/servizi', serviziRoutes);
-// router.use('/portfolio', portfolioRoutes); // <-- NUOVO: Aggiungi le rotte del portfolio
+router.use('/chi-sono', chiSonoRoutes);
+router.use('/contatti', contattiRoutes);
+router.use('/servizi', serviziRoutes);
+router.use('/portfolio', portfolioRoutes); // <-- NUOVO: Aggiungi le rotte del portfolio
 
 // Puoi aggiungere qui una rotta per il login/autenticazione in futuro
 // router.use('/auth', authRoutes);
