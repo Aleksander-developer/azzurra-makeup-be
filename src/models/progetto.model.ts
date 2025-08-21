@@ -31,7 +31,7 @@ const PortfolioItemSchema: Schema = new Schema({
   title: { type: String, required: true },
   subtitle: { type: String },
   description: { type: String },
-  mainImage: { type: String, required: true },
+  mainImage: { type: String },
   category: { type: String, required: true },
   images: [PortfolioImageSchema] // Array di sub-documenti PortfolioImage
 }, {
