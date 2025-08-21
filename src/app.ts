@@ -31,10 +31,10 @@ const corsOptions: cors.CorsOptions = {
   allowedHeaders: ['Content-Type', 'Authorization', 'x-api-key']
 };
 
-// ✅ Middleware CORS globale
+//  Middleware CORS globale
 app.use(cors(corsOptions));
 
-// ✅ Gestione universale delle richieste OPTIONS *prima* di qualunque autenticazione
+//  Gestione universale delle richieste OPTIONS *prima* di qualunque autenticazione
 app.options('*', cors(corsOptions));
 
 // Middleware per il parsing del body delle richieste
