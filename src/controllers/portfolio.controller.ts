@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { PortfolioItem, IPortfolioImage } from '../models/progetto.model';
+import { PortfolioItem, IPortfolioImage } from '../models/portfolio-item.model';
 import cloudinary from '../config/cloudinary.config';
 
 // Funzione helper per caricare un buffer (file in memoria) su Cloudinary

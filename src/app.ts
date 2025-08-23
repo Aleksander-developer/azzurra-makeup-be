@@ -5,6 +5,7 @@ import cors from 'cors';
 import { connectDB } from './config/db.config';
 import apiRoutes from './routes';
 import { authenticateApiKey } from './authMiddleware';
+import proxyRoutes from './routes/proxy.routes';
 
 dotenv.config();
 
@@ -14,7 +15,8 @@ const allowedOrigins = [
   'https://azzurra-makeup-deploy-1046780610179.europe-west1.run.app',
   'http://localhost:4200', // FE in dev classico
   'http://localhost:4000', // FE SSR locale
-  'http://localhost:3000'
+  'http://localhost:3000',
+  'http://localhost:4201'
 ];
 
 const corsOptions: cors.CorsOptions = {
@@ -45,6 +47,10 @@ app.use(express.urlencoded({ extended: true }));
 app.get('/', (req, res) => {
   res.send('✅ Server Express per Azzurra Makeup Artist avviato con successo!');
 });
+
+// NUOVO: Registra le rotte proxy PUBBLICHE sotto /b-api
+// Queste rotte non hanno l'authenticateApiKey middleware
+app.use('/b-api', proxyRoutes);
 
 // ⚠️ Qui sposto l'autenticazione SOLO per le rotte API vere
 app.use('/api', authenticateApiKey, apiRoutes);
