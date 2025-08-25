@@ -106,8 +106,8 @@ router.post('/contatti', async (req: Request, res: Response) => {
 });
 
 
-// NUOVO: PROXY PER GET /reviews
-router.get('/reviews', async (_req: Request, res: Response) => {
+// proxy.routes.ts
+router.get('/reviews', async (_req, res) => {
   try {
     const response = await internalApi.get('/reviews');
     res.json(response.data);
@@ -116,7 +116,10 @@ router.get('/reviews', async (_req: Request, res: Response) => {
   }
 });
 
-router.use('/reviews', reviewsRoutes);
+// ❌ Rimuovi questa riga
+
+
+// router.use('/reviews', reviewsRoutes);
 
 
 export default router;
