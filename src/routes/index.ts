@@ -3,8 +3,9 @@ import express from 'express';
 import chiSonoRoutes from './chi-sono.routes';
 import contattiRoutes from './contatti.routes';
 import serviziRoutes from './servizi.routes';
-import portfolioRoutes from './portfolio.routes'; // <-- NUOVO: Importa le rotte del portfolio
 import authRoutes from './auth.routes';
+import reviewsRoutes from './reviews.routes';
+import portfolioRoutes from './portfolio.routes';
 
 const router = express.Router();
 
