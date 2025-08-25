@@ -1,7 +1,9 @@
+// src/routes/proxy.routes.ts
 import express, { Request, Response } from 'express';
 import axios from 'axios';
 import FormData from 'form-data';
 import multer from 'multer';
+import reviewsRoutes from './reviews.routes';
 
 const router = express.Router();
 
@@ -113,6 +115,8 @@ router.get('/reviews', async (_req: Request, res: Response) => {
     res.status(error.response?.status || 500).json(error.response?.data || { message: 'Errore nel proxy delle recensioni' });
   }
 });
+
+router.use('/reviews', reviewsRoutes);
 
 
 export default router;

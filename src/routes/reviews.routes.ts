@@ -1,9 +1,10 @@
+// src/routes/reviews.routes.ts
 import { Router } from 'express';
 import { getReviews } from '../controllers/reviews.controller';
 
 const router = Router();
 
-// Definisce la rotta GET per /api/reviews
+// Definisci la rotta GET per le recensioni
 router.get('/', getReviews);
 
 export default router;
