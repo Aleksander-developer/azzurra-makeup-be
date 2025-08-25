@@ -8,3 +8,4 @@ const router = Router();
 router.get('/', getReviews);
 
 export default router;
+
