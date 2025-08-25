@@ -11,7 +11,8 @@ const router = express.Router();
 router.use('/chi-sono', chiSonoRoutes);
 router.use('/contatti', contattiRoutes);
 router.use('/servizi', serviziRoutes);
-router.use('/portfolio', portfolioRoutes); // <-- NUOVO: Aggiungi le rotte del portfolio
+router.use('/portfolio', portfolioRoutes); 
+router.use('/reviews', reviewsRoutes);
 
 
 router.use('/auth', authRoutes);
