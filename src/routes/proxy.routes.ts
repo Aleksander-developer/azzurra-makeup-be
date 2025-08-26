@@ -4,6 +4,7 @@ import axios from 'axios';
 import FormData from 'form-data';
 import multer from 'multer';
 import reviewsRoutes from './reviews.routes';
+import portfolioRoutes from './portfolio.routes';
 
 const router = express.Router();
 
@@ -126,6 +127,8 @@ router.get('/reviews', async (_req: Request, res: Response) => {
 
 // router.use('/reviews', reviewsRoutes);
 
+
+router.use('/portfolio', portfolioRoutes);
 
 export default router;
 
