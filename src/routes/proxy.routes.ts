@@ -7,9 +7,13 @@ import reviewsRoutes from './reviews.routes';
 
 const router = express.Router();
 
+const isProd = process.env.NODE_ENV === 'production';
+
 // Configura un'istanza di Axios per le chiamate interne
 const internalApi = axios.create({
-  baseURL: `http://localhost:${process.env.PORT || 8080}/api`,
+  baseURL: isProd
+    ? `https://azzurra-makeup-be-1046780610179.europe-west1.run.app/api`
+    : `http://localhost:${process.env.PORT || 8080}/api`,
   headers: {
     'x-api-key': process.env.API_KEY
   }
