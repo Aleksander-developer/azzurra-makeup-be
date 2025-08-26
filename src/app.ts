@@ -20,14 +20,7 @@ const allowedOrigins = [
 ];
 
 const corsOptions: cors.CorsOptions = {
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      console.log("❌ CORS origin non permessa:", origin);
-      callback(new Error('Accesso CORS non consentito da questo dominio'));
-    }
-  },
+  origin: allowedOrigins,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'x-api-key']
@@ -35,9 +28,6 @@ const corsOptions: cors.CorsOptions = {
 
 //  Middleware CORS globale
 app.use(cors(corsOptions));
-
-//  Gestione universale delle richieste OPTIONS *prima* di qualunque autenticazione
-app.options('*', cors(corsOptions));
 
 // Middleware per il parsing del body delle richieste
 app.use(express.json());
@@ -49,10 +39,10 @@ app.get('/', (req, res) => {
 });
 
 // NUOVO: Registra le rotte proxy PUBBLICHE sotto /b-api
-// Queste rotte non hanno l'authenticateApiKey middleware
 app.use('/b-api', proxyRoutes);
 
 // ⚠️ Qui sposto l'autenticazione SOLO per le rotte API vere
 app.use('/api', authenticateApiKey, apiRoutes);
 
 export default app;
+

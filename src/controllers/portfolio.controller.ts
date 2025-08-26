@@ -161,3 +161,4 @@ export const deletePortfolioItem = async (req: Request, res: Response) => {
         res.status(500).json({ message: 'Errore nell\'eliminazione dell\'elemento del portfolio', error });
     }
 };
+
