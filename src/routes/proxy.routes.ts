@@ -111,19 +111,19 @@ router.post('/contatti', async (req: Request, res: Response) => {
 
 
 // proxy.routes.ts
-router.get('/reviews', async (_req, res) => {
-  try {
-    const response = await internalApi.get('/reviews');
-    res.json(response.data);
-  } catch (error: any) {
-    res.status(error.response?.status || 500).json(error.response?.data || { message: 'Errore nel proxy delle recensioni' });
-  }
-});
+// router.get('/reviews', async (_req, res) => {
+//   try {
+//     const response = await internalApi.get('/reviews');
+//     res.json(response.data);
+//   } catch (error: any) {
+//     res.status(error.response?.status || 500).json(error.response?.data || { message: 'Errore nel proxy delle recensioni' });
+//   }
+// });
 
 // ❌ Rimuovi questa riga
 
 
-// router.use('/reviews', reviewsRoutes);
+router.use('/reviews', reviewsRoutes);
 
 
 export default router;
