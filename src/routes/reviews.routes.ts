@@ -13,3 +13,4 @@ router.options('/', (req, res) => {
 router.get('/', getReviews);
 
 export default router;
+

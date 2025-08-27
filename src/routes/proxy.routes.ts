@@ -128,7 +128,7 @@ router.get('/reviews', async (_req: Request, res: Response) => {
 // router.use('/reviews', reviewsRoutes);
 
 
-router.use('/portfolio', portfolioRoutes);
+// router.use('/portfolio', portfolioRoutes);
 
 export default router;
 
