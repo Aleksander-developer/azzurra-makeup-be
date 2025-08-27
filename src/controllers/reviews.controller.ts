@@ -34,15 +34,31 @@ export const getReviews = async (req: Request, res: Response) => {
       languageCode: 'it', // Lingua delle recensioni
       fields: 'reviews' // Chiediamo solo il campo delle recensioni
     });
-
+    
+    // Controlla se la risposta contiene un array di recensioni
     const reviews = response.data.reviews || [];
 
+    // Normalizzazione per il FE
+    const formattedReviews = reviews.map((r: any, idx: number) => ({
+      reviewId: r.name || `review-${idx}`,
+      reviewer: {
+        displayName: r.authorAttribution?.displayName || "Anonimo",
+        profilePhotoUrl: r.authorAttribution?.photoUri || "",
+        isVerified: r.authorAttribution?.uri ? true : false,
+      },
+      starRating: r.rating || 0,
+      comment: r.text?.text || "",
+      createTime: r.publishTime || "",
+      updateTime: r.updateTime || "",
+      starRatingNumber: r.rating || 0
+    }));
+
     // Aggiorna la cache
-    cachedReviews = reviews;
+    cachedReviews = formattedReviews;
     lastFetchTime = now;
     console.log('Recensioni recuperate da Google e salvate in cache.');
 
-    res.status(200).json(reviews);
+    res.status(200).json(formattedReviews);
 
   } catch (error) {
     console.error('Errore nel recupero delle recensioni da Google:', error);
@@ -53,4 +69,3 @@ export const getReviews = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Impossibile recuperare le recensioni da Google.' });
   }
 };
-
