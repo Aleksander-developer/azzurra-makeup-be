@@ -43,15 +43,17 @@ export const getPortfolioItemById = async (req: Request, res: Response) => {
 export const addPortfolioItem = async (req: Request, res: Response) => {
   try {
     const { title, category, subtitle, description } = req.body;
+    
+    // CORREZIONE QUI: estrai i file dall'oggetto `req.files`
     const files = (req.files as { [fieldname: string]: Express.Multer.File[] })['images'] || [];
     
     let imagesMetadata: IPortfolioImage[] = [];
     if (req.body.imagesMetadata) {
-        try {
-            imagesMetadata = JSON.parse(req.body.imagesMetadata);
-        } catch (e) {
-            return res.status(400).json({ message: "Il campo 'imagesMetadata' non è un JSON valido." });
-        }
+      try {
+        imagesMetadata = JSON.parse(req.body.imagesMetadata);
+      } catch (e) {
+        return res.status(400).json({ message: "Il campo 'imagesMetadata' non è un JSON valido." });
+      }
     }
 
     if (!title || !category) {
@@ -87,6 +89,8 @@ export const updatePortfolioItem = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { title, category, subtitle, description } = req.body;
+    
+    // CORREZIONE QUI: estrai i file dall'oggetto `req.files`
     const files = (req.files as { [fieldname: string]: Express.Multer.File[] })['images'] || [];
     
     let imagesMetadata: IPortfolioImage[] = [];
@@ -103,13 +107,11 @@ export const updatePortfolioItem = async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'Elemento del portfolio non trovato' });
     }
 
-    // Aggiorna i campi di testo
     itemToUpdate.title = title !== undefined ? title : itemToUpdate.title;
     itemToUpdate.subtitle = subtitle !== undefined ? subtitle : itemToUpdate.subtitle;
     itemToUpdate.description = description !== undefined ? description : itemToUpdate.description;
     itemToUpdate.category = category !== undefined ? category : itemToUpdate.category;
 
-    // Gestione delle immagini
     const finalImages: IPortfolioImage[] = [];
     let newFilesIndex = 0;
     

@@ -1,3 +1,5 @@
+// src/models/portfolio-item.models
+
 import mongoose, { Document, Schema } from 'mongoose';
 
 // Interfaccia per le immagini della galleria
