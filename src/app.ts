@@ -1,10 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
-import { connectDB } from './config/db.config';
 import apiRoutes from './routes';
-import { authenticateApiKey } from './authMiddleware';
-import proxyRoutes from './routes/proxy.routes';
 
 dotenv.config();
 
@@ -22,7 +19,7 @@ const corsOptions: cors.CorsOptions = {
   origin: allowedOrigins,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'x-api-key']
+  allowedHeaders: ['Content-Type', 'Authorization']
 };
 
 // Middleware CORS globale
@@ -37,11 +34,7 @@ app.get('/', (_req, res) => {
   res.send('✅ Server Express per Azzurra Makeup Artist avviato con successo!');
 });
 
-// Rotte PUBBLICHE (frontend)
-app.use('/b-api', proxyRoutes);
-
-// Rotte PROTETTE con API Key
-app.use('/api', authenticateApiKey, apiRoutes);
+// Tutte le API pubbliche sotto /api
+app.use('/api', apiRoutes);
 
 export default app;
-
