@@ -32,3 +32,4 @@ export const authenticateApiKey = (req: Request, res: Response, next: NextFuncti
   // Se la chiave API è valida, prosegui con la prossima funzione middleware/route handler
   next();
 };
+

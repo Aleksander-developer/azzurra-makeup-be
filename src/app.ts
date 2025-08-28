@@ -13,8 +13,8 @@ const app = express();
 
 const allowedOrigins = [
   'https://azzurra-makeup-deploy-1046780610179.europe-west1.run.app',
-  'http://localhost:4200', // FE in dev classico
-  'http://localhost:4000', // FE SSR locale
+  'http://localhost:4200',
+  'http://localhost:4000',
   'http://localhost:3000',
   'http://localhost:4201'
 ];
@@ -26,23 +26,22 @@ const corsOptions: cors.CorsOptions = {
   allowedHeaders: ['Content-Type', 'Authorization', 'x-api-key']
 };
 
-//  Middleware CORS globale
+// Middleware CORS globale
 app.use(cors(corsOptions));
 
-// Middleware per il parsing del body delle richieste
+// Middleware per parsing JSON
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Rotta pubblica di base
-app.get('/', (req, res) => {
+// Rotta pubblica base
+app.get('/', (_req, res) => {
   res.send('✅ Server Express per Azzurra Makeup Artist avviato con successo!');
 });
 
-// NUOVO: Registra le rotte proxy PUBBLICHE sotto /b-api
+// Rotte PUBBLICHE (proxy)
 app.use('/b-api', proxyRoutes);
 
-// ⚠️ Qui sposto l'autenticazione SOLO per le rotte API vere
+// Rotte PROTETTE con API Key
 app.use('/api', authenticateApiKey, apiRoutes);
 
 export default app;
-
