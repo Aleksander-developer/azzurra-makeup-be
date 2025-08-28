@@ -43,10 +43,10 @@ export const getPortfolioItemById = async (req: Request, res: Response) => {
 export const addPortfolioItem = async (req: Request, res: Response) => {
   try {
     const { title, category, subtitle, description } = req.body;
-    const files = (req.files as Express.Multer.File[]) || [];
+    const files = (req.files as { [fieldname: string]: Express.Multer.File[] })['images'] || [];
     
     let imagesMetadata: IPortfolioImage[] = [];
-    if (typeof req.body.imagesMetadata === 'string') {
+    if (req.body.imagesMetadata) {
         try {
             imagesMetadata = JSON.parse(req.body.imagesMetadata);
         } catch (e) {
@@ -60,7 +60,6 @@ export const addPortfolioItem = async (req: Request, res: Response) => {
 
     const galleryImagesUrls: IPortfolioImage[] = [];
     if (files.length > 0) {
-      // Carica i file e associa i metadati
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         const result = await uploadToCloudinary(file.buffer);
@@ -88,10 +87,10 @@ export const updatePortfolioItem = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { title, category, subtitle, description } = req.body;
-    const files = (req.files as Express.Multer.File[]) || [];
+    const files = (req.files as { [fieldname: string]: Express.Multer.File[] })['images'] || [];
     
     let imagesMetadata: IPortfolioImage[] = [];
-    if (typeof req.body.imagesMetadata === 'string') {
+    if (req.body.imagesMetadata) {
       try {
         imagesMetadata = JSON.parse(req.body.imagesMetadata);
       } catch (e) {
@@ -116,7 +115,6 @@ export const updatePortfolioItem = async (req: Request, res: Response) => {
     
     for (const metadata of imagesMetadata) {
       if (metadata.isNew) {
-        // È una nuova immagine, la carichiamo
         const file = files[newFilesIndex];
         if (file) {
           const result = await uploadToCloudinary(file.buffer);
@@ -128,7 +126,6 @@ export const updatePortfolioItem = async (req: Request, res: Response) => {
           newFilesIndex++;
         }
       } else {
-        // È un'immagine esistente, la aggiungiamo all'array finale
         finalImages.push({
           src: metadata.src,
           description: metadata.description,
