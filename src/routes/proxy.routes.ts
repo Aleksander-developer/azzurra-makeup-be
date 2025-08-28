@@ -1,136 +1,18 @@
-// src/routes/proxy.routes.ts
-import express, { Request, Response } from 'express';
-import axios from 'axios';
-import FormData from 'form-data';
-import multer from 'multer';
+import express from 'express';
+import portfolioRoutes from './portfolio.routes';
+import reviewsRoutes from './reviews.routes';
+import contattiRoutes from './contatti.routes';
+import chiSonoRoutes from './chi-sono.routes';
+import serviziRoutes from './servizi.routes';
 
 const router = express.Router();
 
-const isProd = process.env.NODE_ENV === 'production';
-
-// Configura un'istanza di Axios per le chiamate interne
-const internalApi = axios.create({
-  baseURL: isProd
-    ? `https://azzurra-makeup-be-1046780610179.europe-west1.run.app/api`
-    : `http://localhost:${process.env.PORT || 8080}/api`,
-  headers: {
-    'x-api-key': process.env.API_KEY
-  }
-});
-
-const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
-
-// --- PROXY PER IL PORTFOLIO ---
-router.get('/portfolio', async (_req: Request, res: Response) => {
-  try {
-    const response = await internalApi.get('/portfolio');
-    res.json(response.data);
-  } catch (error: any) {
-    res.status(error.response?.status || 500).json(
-      error.response?.data || { message: 'Errore nel proxy' }
-    );
-  }
-});
-
-router.get('/portfolio/:id', async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const response = await internalApi.get(`/portfolio/${id}`);
-    res.json(response.data);
-  } catch (error: any) {
-    res.status(error.response?.status || 500).json(
-      error.response?.data || { message: 'Errore nel proxy' }
-    );
-  }
-});
-
-router.post('/portfolio', upload.array('images', 10), async (req: Request, res: Response) => {
-  try {
-    const form = new FormData();
-    for (const key in req.body) {
-      form.append(key, req.body[key]);
-    }
-    if (req.files && Array.isArray(req.files)) {
-      for (const file of req.files) {
-        form.append('images', file.buffer, {
-          filename: file.originalname,
-          contentType: file.mimetype
-        });
-      }
-    }
-    const response = await internalApi.post('/portfolio', form, {
-      headers: { ...form.getHeaders() }
-    });
-    res.status(201).json(response.data);
-  } catch (error: any) {
-    res.status(error.response?.status || 500).json(
-      error.response?.data || { message: 'Errore nel proxy' }
-    );
-  }
-});
-
-router.put('/portfolio/:id', upload.array('images', 10), async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const form = new FormData();
-    for (const key in req.body) {
-      form.append(key, req.body[key]);
-    }
-    if (req.files && Array.isArray(req.files)) {
-      for (const file of req.files) {
-        form.append('images', file.buffer, {
-          filename: file.originalname,
-          contentType: file.mimetype
-        });
-      }
-    }
-    const response = await internalApi.put(`/portfolio/${id}`, form, {
-      headers: { ...form.getHeaders() }
-    });
-    res.json(response.data);
-  } catch (error: any) {
-    res.status(error.response?.status || 500).json(
-      error.response?.data || { message: 'Errore nel proxy' }
-    );
-  }
-});
-
-router.delete('/portfolio/:id', async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const response = await internalApi.delete(`/portfolio/${id}`);
-    res.json(response.data);
-  } catch (error: any) {
-    res.status(error.response?.status || 500).json(
-      error.response?.data || { message: 'Errore nel proxy' }
-    );
-  }
-});
-
-// --- PROXY PER IL FORM CONTATTI ---
-router.post('/contatti', async (req: Request, res: Response) => {
-  try {
-    const response = await internalApi.post('/contatti', req.body);
-    res.status(response.status).json(response.data);
-  } catch (error: any) {
-    res.status(error.response?.status || 500).json(
-      error.response?.data || { message: 'Errore nel proxy dei contatti' }
-    );
-  }
-});
-
-// --- PROXY PER LE REVIEWS ---
-router.get('/reviews', async (_req: Request, res: Response) => {
-  try {
-    const response = await internalApi.get('/reviews');
-    res.json(response.data);
-  } catch (error: any) {
-    res.status(error.response?.status || 500).json(
-      error.response?.data || { message: 'Errore nel proxy delle recensioni' }
-    );
-  }
-});
+// Rotte pubbliche, usano direttamente i router interni
+router.use('/portfolio', portfolioRoutes);
+router.use('/reviews', reviewsRoutes);
+router.use('/contatti', contattiRoutes);
+router.use('/chi-sono', chiSonoRoutes);
+router.use('/servizi', serviziRoutes);
 
 export default router;
 

@@ -1,4 +1,3 @@
-// src/app.ts
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
@@ -38,10 +37,11 @@ app.get('/', (_req, res) => {
   res.send('✅ Server Express per Azzurra Makeup Artist avviato con successo!');
 });
 
-// Rotte PUBBLICHE (proxy)
+// Rotte PUBBLICHE (frontend)
 app.use('/b-api', proxyRoutes);
 
 // Rotte PROTETTE con API Key
 app.use('/api', authenticateApiKey, apiRoutes);
 
 export default app;
+
