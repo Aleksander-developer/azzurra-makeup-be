@@ -85,7 +85,7 @@ export const addPortfolioItem = async (req: Request, res: Response) => {
   }
 };
 
-// PUT: Aggiorna un elemento esistente
+// PUT: Aggiorna un elemento esistentee
 export const updatePortfolioItem = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
