@@ -42,6 +42,10 @@ export const getPortfolioItemById = async (req: Request, res: Response) => {
 // POST: Aggiunge un nuovo elemento
 export const addPortfolioItem = async (req: Request, res: Response) => {
   try {
+        console.log('Inizio addPortfolioItem...');
+        console.log('Corpo della richiesta:', req.body);
+        console.log('File caricati:', req.files);
+
     const { title, category, subtitle, description } = req.body;
     
     // CORREZIONE QUI: estrai i file dall'oggetto `req.files`
@@ -88,6 +92,10 @@ export const addPortfolioItem = async (req: Request, res: Response) => {
 // PUT: Aggiorna un elemento esistentee
 export const updatePortfolioItem = async (req: Request, res: Response) => {
     try {
+        console.log('Inizio addPortfolioItem...');
+        console.log('Corpo della richiesta:', req.body);
+        console.log('File caricati:', req.files);
+        
         const { id } = req.params;
         const { title, category, subtitle, description } = req.body;
         
