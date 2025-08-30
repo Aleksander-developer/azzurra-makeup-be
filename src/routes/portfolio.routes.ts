@@ -14,7 +14,10 @@ const router = express.Router();
 
 // Configurazione Multer per l'upload in memoria
 const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
+const upload = multer({ 
+  storage: storage,
+  limits: { fileSize: 5 * 1024 * 1024 } // Aumenta il limite a 5MB
+});
 
 // Rotte per il Portfolio
 router.get('/', getPortfolioItems);
