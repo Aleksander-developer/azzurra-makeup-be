@@ -2,6 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import apiRoutes from './routes';
+import proxyRoutes from './routes/proxy.routes';
 
 dotenv.config();
 
@@ -33,6 +34,10 @@ app.use(express.urlencoded({ extended: true }));
 app.get('/', (_req, res) => {
   res.send('✅ Server Express per Azzurra Makeup Artist avviato con successo!');
 });
+
+// NUOVO: Registra le rotte proxy PUBBLICHE sotto /b-api
+app.use('/b-api', proxyRoutes); // Rotte pubbliche che non richiedono autenticazione
+
 
 // Tutte le API pubbliche sotto /api
 app.use('/api', apiRoutes);

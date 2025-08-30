@@ -41,7 +41,7 @@ router.get('/portfolio/:id', async (req: Request, res: Response) => {
     }
 });
 
-// Modificato per usare upload.fields
+// Correzione qui: usa upload.fields
 router.post('/portfolio', upload.fields([
     { name: 'images', maxCount: 10 },
     { name: 'imagesMetadata', maxCount: 1 } 
@@ -67,7 +67,7 @@ router.post('/portfolio', upload.fields([
   }
 });
 
-// Modificato per usare upload.fields
+// Correzione qui: usa upload.fields
 router.put('/portfolio/:id', upload.fields([
     { name: 'images', maxCount: 10 },
     { name: 'imagesMetadata', maxCount: 1 }
